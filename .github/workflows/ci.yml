@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: owner
+          POSTGRES_USER: amber_owner
+          POSTGRES_DB: amber
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL_OWNER: postgres://amber_owner:owner@localhost:5432/amber
+      TEST_DATABASE_URL_OWNER: postgres://amber_owner:owner@localhost:5432/amber
+      TEST_DATABASE_URL: postgres://amber_app:app-ci-password@localhost:5432/amber
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      # The RLS tests run against a freshly migrated database as amber_app.
+      - run: pnpm db:migrate
+      - run: APP_DB_PASSWORD=app-ci-password pnpm db:app-role
+      - run: pnpm test
