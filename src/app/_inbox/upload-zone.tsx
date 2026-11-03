@@ -5,6 +5,15 @@ import { useRef, useState } from "react";
 
 type Progress = { done: number; total: number; failed: string[] };
 
+// "2026-11-03T18:30:00-08:00": this computer's clock with its zone, so
+// Amber knows which local day an upload without metadata belongs to.
+function localIso(d: Date) {
+  const off = -d.getTimezoneOffset();
+  const pad = (n: number) => String(Math.floor(Math.abs(n))).padStart(2, "0");
+  const local = new Date(d.getTime() + off * 60000).toISOString().slice(0, 19);
+  return `${local}${off < 0 ? "-" : "+"}${pad(off / 60)}:${pad(off % 60)}`;
+}
+
 // Desktop capture: originals go straight to R2 with the same three calls
 // the Shortcut and agents use. Nothing is resized or re-encoded here.
 async function uploadOne(file: File) {
@@ -22,7 +31,7 @@ async function uploadOne(file: File) {
   const confirm = await fetch(`/api/media/${slot.media_id}/confirm`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ device: "web" }),
+    body: JSON.stringify({ device: "web", sent_at: localIso(new Date()) }),
   });
   if (!confirm.ok) throw new Error((await confirm.json()).error ?? "Could not confirm upload");
 }

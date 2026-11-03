@@ -14,7 +14,7 @@ const appUrl = process.env.TEST_DATABASE_URL;
 describe.skipIf(!ownerUrl || !appUrl)("row-level security", async () => {
   process.env.DATABASE_URL = appUrl;
   const { getDb, withUser, closeDb } = await import("@/db");
-  const { media } = await import("@/db/schema");
+  const { activityLog, media } = await import("@/db/schema");
 
   const ben = randomUUID();
   const other = randomUUID();
@@ -73,6 +73,12 @@ describe.skipIf(!ownerUrl || !appUrl)("row-level security", async () => {
     await expect(withUser(ben, (tx) => tx.delete(media).where(eq(media.ownerId, ben)))).rejects.toMatchObject({
       cause: { code: "42501" },
     });
+  });
+
+  it("can add to the activity log but never rewrite it", async () => {
+    await expect(
+      withUser(ben, (tx) => tx.update(activityLog).set({ action: "edited" }).where(eq(activityLog.ownerId, ben))),
+    ).rejects.toMatchObject({ cause: { code: "42501" } });
   });
 
   it("does not leak the user setting to the next transaction on the same connection", async () => {

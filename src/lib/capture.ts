@@ -6,7 +6,7 @@ import { media, moments, type Derived } from "@/db/schema";
 import { logActivity } from "./activity";
 import type { Caller, Scope } from "./caller";
 import { HttpError } from "./errors";
-import { interpretCaptureTime } from "./metadata/capture-time";
+import { confirmTime, localDay } from "./metadata/capture-time";
 import { extensionOf, kindFor, resolveContentType, sniffContentType } from "./media-kind";
 import { headObject, originalKey, readHead, signUpload, signView, UPLOAD_URL_TTL_SECONDS } from "./storage";
 
@@ -80,6 +80,9 @@ export const confirmInput = z.object({
   device: z.string().max(100).optional(),
   // Fallbacks for when the file carries no metadata. The file wins.
   captured_at: z.string().max(40).optional(),
+  // The phone's clock when it sent the file, with its zone
+  // ("2026-11-03T18:30:00-08:00"). Tells Amber which local day "now" is.
+  sent_at: z.string().max(40).optional(),
   lat: z.coerce.number().min(-90).max(90).optional(),
   lng: z.coerce.number().min(-180).max(180).optional(),
 });
@@ -94,12 +97,6 @@ export function captureUuid(ownerId: string, captureId: string) {
   h[8] = (h[8] & 0x3f) | 0x80;
   const hex = h.subarray(0, 16).toString("hex");
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
-
-function clientTime(value: string | undefined) {
-  if (!value) return null;
-  const m = /^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/.exec(value.trim());
-  return m ? interpretCaptureTime({ local: m[1], offset: m[2] ?? "Z" }) : null;
 }
 
 // Media with a note becomes a draft moment; media alone goes to the Inbox.
@@ -180,11 +177,12 @@ export async function confirmUpload(caller: Caller, mediaId: string, input: Conf
       contentType = sniffContentType(await readHead(row.originalKey!)) ?? contentType;
     }
 
-    const hint = clientTime(input.captured_at);
-    const now = new Date();
-    const capturedAt = hint?.capturedAt ?? now;
-    const tzOffset = hint?.tzOffset ?? null;
-    const today = new Date(capturedAt.getTime() + (tzOffset ?? 0) * 60000).toISOString().slice(0, 10);
+    const { capturedAt, tzOffset, source: timeSource } = confirmTime({
+      capturedAt: input.captured_at,
+      sentAt: input.sent_at,
+      now: new Date(),
+    });
+    const today = localDay(capturedAt, tzOffset);
 
     const momentId = await momentFor(tx, caller, input, kindFor(contentType), today);
     const [updated] = await tx
@@ -198,7 +196,7 @@ export async function confirmUpload(caller: Caller, mediaId: string, input: Conf
         deviceName: input.device ?? null,
         capturedAt,
         capturedTzOffset: tzOffset,
-        capturedAtSource: hint ? "client" : "upload",
+        capturedAtSource: timeSource,
         lat: input.lat ?? null,
         lng: input.lng ?? null,
       })

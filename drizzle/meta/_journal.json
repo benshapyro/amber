@@ -22,6 +22,13 @@
       "when": 1793268532566,
       "tag": "0002_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793746296375,
+      "tag": "0003_append_only_activity",
+      "breakpoints": true
     }
   ]
 }

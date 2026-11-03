@@ -10,9 +10,11 @@ Every client (the iOS Shortcut, the web drop zone, agents) uses the same three c
 
 1. `POST /api/media/upload-url` with `{ filename, size?, content_type? }` returns `{ media_id, upload_url, content_type, headers }`.
 2. `PUT` the file to `upload_url` with exactly those `headers`.
-3. `POST /api/media/{media_id}/confirm` with optional `{ note, is_note, capture_id, device, captured_at, lat, lng }`.
+3. `POST /api/media/{media_id}/confirm` with optional `{ note, is_note, capture_id, device, captured_at, sent_at, lat, lng }`. `sent_at` is the client's clock with its zone (`2026-11-03T18:30:00-08:00`); it decides the local day when the file has no time of its own.
 
 Confirm starts the `process-media` job (`trigger/process-media.ts`): EXIF or QuickTime metadata, HEIC decode, three WebP sizes (640, 1600, 2560 px, no EXIF in them), and a Mapbox place name. Media with a note becomes a draft moment; media alone goes to the Inbox. Files from one Shortcut run share a `capture_id`, so they all land on the same draft. If the file has no capture time, the `captured_at` hint is used, then the upload time.
+
+A nightly `cleanup-uploads` job finishes uploads whose confirm never arrived (the file is in R2, so it goes to the Inbox) and soft-deletes rows whose file never came.
 
 Other routes: `GET /api/inbox`, `GET /api/media/{id}`. Auth is either Ben's session cookie or `Authorization: Bearer <api key>`. Device tokens (Settings > Devices) carry only the `draft` scope: they can add to the Inbox and start drafts, and cannot read.
 

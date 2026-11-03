@@ -4,6 +4,7 @@ import { media, moments, type Derived } from "@/db/schema";
 import { deriveImages } from "./derive";
 import { reverseGeocode } from "./geocode";
 import { isHeic } from "./media-kind";
+import { placeInZone } from "./metadata/capture-time";
 import { readPhotoMetadata } from "./metadata/exif";
 import { readVideoMetadata } from "./metadata/quicktime";
 import { derivedKey, getObjectBytes, headObject, putObject, rangeReader } from "./storage";
@@ -48,10 +49,12 @@ export async function processMedia({ ownerId, mediaId }: ProcessPayload) {
 
     // The file's own metadata beats the client's hint, which beats upload time.
     if (meta?.time) {
-      update.capturedAt = meta.time.capturedAt;
+      // A wall-clock time with no zone is read in the phone's zone; a
+      // UTC-only time (a video's mvhd clock) keeps the phone's offset.
+      const time = placeInZone(meta.time, row.capturedTzOffset);
+      update.capturedAt = time.capturedAt;
       update.capturedAtSource = row.kind === "video" ? "quicktime" : "exif";
-      // A UTC-only time (no zone in the file) keeps the client's offset.
-      update.capturedTzOffset = meta.time.tzOffset ?? row.capturedTzOffset;
+      update.capturedTzOffset = time.tzOffset ?? row.capturedTzOffset;
     }
     if (meta?.lat != null && meta?.lng != null) {
       update.lat = meta.lat;

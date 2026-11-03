@@ -51,10 +51,11 @@ Variable names are in bold. "Text" means the Text action.
       - Headers: `Content-Type` = **Type**.
       - Request Body: File, **Repeat Item**.
    5. Recommended fallback for files without metadata: Get Details of Images, Date Taken, from Repeat Item → Format Date, ISO 8601, include time → Set Variable **Taken**.
+      Then: Current Date → Format Date, ISO 8601, include time → Set Variable **Sent**. This carries the phone's time zone, so a voice memo or a file with no date lands on today's date where you are, not on UTC's.
    6. Get Contents of URL
       - URL: `Base/api/media/MediaID/confirm`
       - Method: POST. Headers: `Authorization` = `Bearer Token`.
-      - Request Body: JSON with `capture_id` = **Capture**, `note` = **Note**, `device` = **Device**, `captured_at` = **Taken**.
+      - Request Body: JSON with `capture_id` = **Capture**, `note` = **Note**, `device` = **Device**, `captured_at` = **Taken**, `sent_at` = **Sent**.
    7. Get Dictionary Value `error` from Contents of URL. If it has any value: Show Alert "Amber did not get Name: Dictionary Value", then Stop This Shortcut. No signal means the run stops visibly; the photos are still in Photos, so run it again later.
 11. End Repeat.
 12. Show Notification: "Sent to Amber".
