@@ -21,7 +21,7 @@ function parseJson<T>(value: unknown): T | null {
 }
 
 // Every REST route starts here. An API key (the Shortcut, an agent) gets
-// exactly its scopes; Ben signed in on the web gets all of them.
+// exactly its scopes; the owner signed in on the web gets all of them.
 export async function resolveCaller(headers: Headers): Promise<Caller> {
   const key = bearer(headers);
   if (key) {
@@ -44,7 +44,7 @@ export async function resolveCaller(headers: Headers): Promise<Caller> {
   if (!session) throw new HttpError(401, "Sign in, or send an API key as a Bearer token.");
   return {
     userId: session.user.id,
-    actor: session.user.name || "Ben",
+    actor: session.user.name || "Owner",
     apiKeyId: null,
     source: "web",
     scopes: OWNER_SCOPES,

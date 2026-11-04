@@ -28,7 +28,7 @@ export const env = {
     return process.env.RESEND_API_KEY;
   },
   get emailFrom() {
-    return process.env.EMAIL_FROM ?? "Amber <amber@shapyro.com>";
+    return process.env.EMAIL_FROM ?? "Amber <onboarding@resend.dev>";
   },
   get mapboxToken() {
     return process.env.MAPBOX_TOKEN;

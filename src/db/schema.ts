@@ -127,7 +127,7 @@ export const activityLog = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     ownerId: ownerId(),
-    // "Ben" for a signed-in session, or the API key's name.
+    // The owner's name for a signed-in session, or the API key's name.
     actor: text("actor").notNull(),
     apiKeyId: uuid("api_key_id"),
     action: text("action").notNull(),

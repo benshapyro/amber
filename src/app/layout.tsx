@@ -13,7 +13,7 @@ const dmSans = DM_Sans({ variable: "--font-dm", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Amber",
-  description: "Ben's photo journal.",
+  description: "A private photo journal.",
   robots: { index: false, follow: false },
 };
 
