@@ -6,7 +6,7 @@ Apple only imports Shortcuts that were signed on an Apple device, so this cannot
 
 ## Before you start
 
-In Amber, open **Settings > Devices**, name the device (for example "Ben's iPhone"), tap **New device token**, and copy the token. It is shown once. The token can only add to the Inbox and start drafts; if the phone is lost, revoke it there.
+In Amber, open **Settings > Devices**, name the device (for example "My iPhone"), tap **New device token**, and copy the token. It is shown once. The token can only add to the Inbox and start drafts; if the phone is lost, revoke it there.
 
 ## Shortcut settings
 
@@ -21,7 +21,7 @@ Variable names are in bold. "Text" means the Text action.
 
 **Setup**
 
-1. Text: `https://amber.shapyro.com` → Set Variable **Base**.
+1. Text: your Amber address, for example `https://amber.example.com` → Set Variable **Base**.
 2. Text: paste the device token → Set Variable **Token**.
 3. Get Device Details: Device Name → Set Variable **Device**.
 4. Current Date → Format Date, Custom format `yyyyMMddHHmmssSSS` → Set Variable **Stamp**.
