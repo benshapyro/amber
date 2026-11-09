@@ -37,7 +37,7 @@ Plain-English definitions. The moment is the atomic unit; everything else is a v
 **Moment** — one memory.
 - `title` (optional; AI can draft)
 - `body` (optional; Markdown, which is plain text with light formatting marks like `**bold**`)
-- `starts_on`, `ends_on` — a date span. Auto-set from the earliest and latest media capture times, each in the local time zone where it was taken (a 1am photo in Athens is that Athens day). A text-only moment defaults to today. Ben can override both dates. A single day is start = end.
+- `starts_on`, `ends_on` — a date span. Auto-set from the earliest and latest media capture times, each in the local time zone where it was taken (a 1am photo in Athens is that Athens day). A text-only moment defaults to today. The owner can override both dates. A single day is start = end.
 - `kind`: `moment` or `period_note`
 - `period` (period notes only): `week` or `month`
 - `status`: `draft` or `kept`
