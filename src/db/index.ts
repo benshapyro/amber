@@ -15,7 +15,13 @@ let cached: { pool: Pool; db: Db } | undefined;
 // whose owner_id matches the user set by withUser().
 export function getDb(): Db {
   if (!cached) {
-    const pool = new Pool({ connectionString: env.databaseUrl, max: 5 });
+    // `next build` imports the auth routes, which build this client, but
+    // never queries. pg connects lazily, so a build without database
+    // settings (a first Vercel deploy, a fresh fork) still succeeds; at run
+    // time a missing DATABASE_URL fails loudly as before.
+    const building = process.env.NEXT_PHASE === "phase-production-build";
+    const connectionString = building ? (process.env.DATABASE_URL ?? "postgres://build@localhost/build") : env.databaseUrl;
+    const pool = new Pool({ connectionString, max: 5 });
     cached = { pool, db: drizzle(pool, { schema }) };
   }
   return cached.db;
