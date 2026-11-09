@@ -4,6 +4,8 @@ A private photo journal you host yourself. Share photos to it from your phone wi
 
 Amber is open source (MIT). Each install belongs to one person: you run your own copy on your own accounts, and your photos and journal live only in your database and storage, never in this repo.
 
+The product spec, with every design decision and why, is in [`docs/amber-spec.md`](docs/amber-spec.md).
+
 This repo is the single app: Next.js on Vercel, Neon Postgres with Drizzle, Better Auth, Cloudflare R2, and Trigger.dev for background jobs.
 
 **Built so far: slice 2, capture to inbox.** Sign in, upload originals straight to R2 (Shortcut, web, or API), read time and place from the file, decode HEIC, write display sizes, and show it all in the Inbox. Moments, the book, and AI drafts come in later slices.
