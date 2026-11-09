@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Ben's brand tokens (brand skill, design.md §9). Dark obsidian is the
+/* Default theme: obsidian, amber, and sage. Change these tokens to retheme. Dark obsidian is the
    default; warm linen when the device asks for light. Photos are the
    colour, the chrome stays out of the way, amber is punctuation. */
 :root {

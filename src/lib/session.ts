@@ -10,7 +10,7 @@ export async function requireOwner(): Promise<Caller> {
   if (!session) redirect("/sign-in");
   return {
     userId: session.user.id,
-    actor: session.user.name || "Ben",
+    actor: session.user.name || "Owner",
     apiKeyId: null,
     source: "web",
     scopes: new Set(["read", "draft", "keep", "share"]),
